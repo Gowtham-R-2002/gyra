@@ -1,0 +1,122 @@
+[
+ {
+  "suite": "tool_choice",
+  "group": "Agent tools",
+  "label": "Which tool should the agent call? (BFCL)",
+  "laya-english": 85.6,
+  "laya-typed-decisions": 88.8,
+  "ours-H8": 91.9
+ },
+ {
+  "suite": "tool_relevance",
+  "group": "Agent tools",
+  "label": "Can any tool handle this? (BFCL)",
+  "laya-english": 86.7,
+  "laya-typed-decisions": 84.6,
+  "ours-H8": 91.2
+ },
+ {
+  "suite": "cmd_intent",
+  "group": "Commands",
+  "label": "Does the command match the request? (NL2Bash)",
+  "laya-english": 81.2,
+  "laya-typed-decisions": 79.4,
+  "ours-H8": 93.7
+ },
+ {
+  "suite": "cmd_destructive",
+  "group": "Commands",
+  "label": "Will it delete / overwrite files? (sandbox)",
+  "laya-english": 62.2,
+  "laya-typed-decisions": 61.8,
+  "ours-H8": 90.5
+ },
+ {
+  "suite": "cmd_success",
+  "group": "Commands",
+  "label": "Did it succeed? (sandbox output)",
+  "laya-english": 48.8,
+  "laya-typed-decisions": 50.4,
+  "ours-H8": 93.0
+ },
+ {
+  "suite": "ext_swe_rebench",
+  "group": "Real agent logs",
+  "label": "Did it succeed? \u00b7 SWE-rebench OpenHands logs",
+  "laya-english": 62.3,
+  "laya-typed-decisions": 70.6,
+  "ours-H8": 88.0
+ },
+ {
+  "suite": "ext_swe_zero",
+  "group": "Real agent logs",
+  "label": "Did it succeed? \u00b7 SWE-Zero OpenHands logs",
+  "laya-english": 80.5,
+  "laya-typed-decisions": 90.0,
+  "ours-H8": 99.2
+ },
+ {
+  "suite": "pi_spml",
+  "group": "Prompt injection",
+  "label": "SPML chatbot attacks",
+  "laya-english": 84.4,
+  "laya-typed-decisions": 79.0,
+  "ours-H8": 86.9
+ },
+ {
+  "suite": "pi_bipia",
+  "group": "Prompt injection",
+  "label": "BIPIA: attacks hidden in emails / documents",
+  "laya-english": 56.0,
+  "laya-typed-decisions": 55.3,
+  "ours-H8": 72.0
+ },
+ {
+  "suite": "pi_deepset_test",
+  "group": "Prompt injection",
+  "label": "deepset test split",
+  "laya-english": 69.8,
+  "laya-typed-decisions": 67.2,
+  "ours-H8": 84.5
+ },
+ {
+  "suite": "sw_unseen",
+  "group": "General decisions",
+  "label": "Unseen software domains (teacher labels)",
+  "laya-english": 53.1,
+  "laya-typed-decisions": 54.7,
+  "ours-H8": 66.5
+ },
+ {
+  "suite": "gen_unseen",
+  "group": "General decisions",
+  "label": "Unseen general domains (teacher labels)",
+  "laya-english": 47.1,
+  "laya-typed-decisions": 54.0,
+  "ours-H8": 64.2
+ },
+ {
+  "suite": "banking77",
+  "group": "General decisions",
+  "label": "Banking77 (human labels)",
+  "laya-english": 73.5,
+  "laya-typed-decisions": 76.0,
+  "ours-H8": 75.0
+ },
+ {
+  "suite": "hard",
+  "group": "General decisions",
+  "label": "Hard cases (true answers)",
+  "laya-english": 86.7,
+  "laya-typed-decisions": 96.7,
+  "ours-H8": 98.3
+ },
+ {
+  "suite": "typed",
+  "group": "General decisions",
+  "label": "Typed Decisions (Laya's home dataset)",
+  "laya-english": 35.9,
+  "laya-typed-decisions": 76.7,
+  "ours-H8": 50.9
+ }
+]

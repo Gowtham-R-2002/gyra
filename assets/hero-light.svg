@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 598" width="920" height="598" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" rx="14" fill="#ffffff"/>
+<text x="28" y="40" font-size="21" font-weight="700" fill="#17161f">Gyra vs Laya on coding-agent decisions</text>
+<text x="28" y="64" font-size="13.5" fill="#6b6a7d">Accuracy %, held-out tests with true answers. Same 421M architecture, same speed. Laya = the better of its two checkpoints per test.</text>
+<line x1="300.0" y1="84" x2="300.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="300.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">0</text>
+<line x1="410.0" y1="84" x2="410.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="410.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">20</text>
+<line x1="520.0" y1="84" x2="520.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="520.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">40</text>
+<line x1="630.0" y1="84" x2="630.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="630.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">60</text>
+<line x1="740.0" y1="84" x2="740.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="740.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">80</text>
+<line x1="850.0" y1="84" x2="850.0" y2="558" stroke="#e6e6ef" stroke-width="1"/>
+<text x="850.0" y="576" font-size="11.5" fill="#6b6a7d" text-anchor="middle">100</text>
+<text x="286" y="112" font-size="13.5" fill="#454456" text-anchor="end">Which tool to call · BFCL</text>
+<rect x="300.0" y="96" width="488.4" height="12" rx="4" fill="#b86b00"/>
+<text x="794.4" y="106" font-size="11.5" font-weight="500" fill="#454456">88.8</text>
+<rect x="300.0" y="111" width="505.5" height="12" rx="4" fill="#6552e0"/>
+<text x="811.5" y="121" font-size="11.5" font-weight="700" fill="#17161f">91.9</text>
+<text x="286" y="158" font-size="13.5" fill="#454456" text-anchor="end">Does any tool fit · BFCL</text>
+<rect x="300.0" y="142" width="476.9" height="12" rx="4" fill="#b86b00"/>
+<text x="782.9" y="152" font-size="11.5" font-weight="500" fill="#454456">86.7</text>
+<rect x="300.0" y="157" width="501.6" height="12" rx="4" fill="#6552e0"/>
+<text x="807.6" y="167" font-size="11.5" font-weight="700" fill="#17161f">91.2</text>
+<text x="286" y="204" font-size="13.5" fill="#454456" text-anchor="end">Command matches the request · NL2Bash</text>
+<rect x="300.0" y="188" width="446.6" height="12" rx="4" fill="#b86b00"/>
+<text x="752.6" y="198" font-size="11.5" font-weight="500" fill="#454456">81.2</text>
+<rect x="300.0" y="203" width="515.4" height="12" rx="4" fill="#6552e0"/>
+<text x="821.4" y="213" font-size="11.5" font-weight="700" fill="#17161f">93.7</text>
+<text x="286" y="250" font-size="13.5" fill="#454456" text-anchor="end">Deletes / overwrites files · sandbox</text>
+<rect x="300.0" y="234" width="342.1" height="12" rx="4" fill="#b86b00"/>
+<text x="648.1" y="244" font-size="11.5" font-weight="500" fill="#454456">62.2</text>
+<rect x="300.0" y="249" width="497.8" height="12" rx="4" fill="#6552e0"/>
+<text x="803.8" y="259" font-size="11.5" font-weight="700" fill="#17161f">90.5</text>
+<text x="286" y="296" font-size="13.5" fill="#454456" text-anchor="end">Did it succeed · sandbox output</text>
+<rect x="300.0" y="280" width="277.2" height="12" rx="4" fill="#b86b00"/>
+<text x="583.2" y="290" font-size="11.5" font-weight="500" fill="#454456">50.4</text>
+<rect x="300.0" y="295" width="511.5" height="12" rx="4" fill="#6552e0"/>
+<text x="817.5" y="305" font-size="11.5" font-weight="700" fill="#17161f">93.0</text>
+<text x="286" y="342" font-size="13.5" fill="#454456" text-anchor="end">Did it succeed · SWE-rebench agent logs</text>
+<rect x="300.0" y="326" width="388.3" height="12" rx="4" fill="#b86b00"/>
+<text x="694.3" y="336" font-size="11.5" font-weight="500" fill="#454456">70.6</text>
+<rect x="300.0" y="341" width="484.0" height="12" rx="4" fill="#6552e0"/>
+<text x="790.0" y="351" font-size="11.5" font-weight="700" fill="#17161f">88.0</text>
+<text x="286" y="388" font-size="13.5" fill="#454456" text-anchor="end">Did it succeed · SWE-Zero agent logs</text>
+<rect x="300.0" y="372" width="495.0" height="12" rx="4" fill="#b86b00"/>
+<text x="801.0" y="382" font-size="11.5" font-weight="500" fill="#454456">90.0</text>
+<rect x="300.0" y="387" width="545.6" height="12" rx="4" fill="#6552e0"/>
+<text x="851.6" y="397" font-size="11.5" font-weight="700" fill="#17161f">99.2</text>
+<text x="286" y="434" font-size="13.5" fill="#454456" text-anchor="end">Prompt injection · SPML</text>
+<rect x="300.0" y="418" width="464.2" height="12" rx="4" fill="#b86b00"/>
+<text x="770.2" y="428" font-size="11.5" font-weight="500" fill="#454456">84.4</text>
+<rect x="300.0" y="433" width="478.0" height="12" rx="4" fill="#6552e0"/>
+<text x="784.0" y="443" font-size="11.5" font-weight="700" fill="#17161f">86.9</text>
+<text x="286" y="480" font-size="13.5" fill="#454456" text-anchor="end">Hidden injection · BIPIA</text>
+<rect x="300.0" y="464" width="308.0" height="12" rx="4" fill="#b86b00"/>
+<text x="614.0" y="474" font-size="11.5" font-weight="500" fill="#454456">56.0</text>
+<rect x="300.0" y="479" width="396.0" height="12" rx="4" fill="#6552e0"/>
+<text x="702.0" y="489" font-size="11.5" font-weight="700" fill="#17161f">72.0</text>
+<text x="286" y="526" font-size="13.5" fill="#454456" text-anchor="end">Prompt injection · deepset</text>
+<rect x="300.0" y="510" width="383.9" height="12" rx="4" fill="#b86b00"/>
+<text x="689.9" y="520" font-size="11.5" font-weight="500" fill="#454456">69.8</text>
+<rect x="300.0" y="525" width="464.8" height="12" rx="4" fill="#6552e0"/>
+<text x="770.8" y="535" font-size="11.5" font-weight="700" fill="#17161f">84.5</text>
+<rect x="660" y="30" width="12" height="12" rx="3" fill="#b86b00"/><text x="678" y="40" font-size="13" fill="#454456">Laya</text>
+<rect x="750" y="30" width="12" height="12" rx="3" fill="#6552e0"/><text x="768" y="40" font-size="13" fill="#454456">Gyra</text>
+</svg>

@@ -1,0 +1,10 @@
+Gyra
+Copyright 2026 Gowtham R
+
+This product is a fine-tune of Laya by Convai Innovations
+(https://github.com/NandhaKishorM/laya, https://huggingface.co/convaiinnovations/laya), licensed under Apache-2.0.
+Laya's encoder is answerdotai/ModernBERT-large (Apache-2.0).
+
+Training data sources and their licences are listed in docs/TRAINING.md and in the model card.
+eval/data/injection_bipia_CC-BY-SA.jsonl is derived from BIPIA (geodesic-research/bipia) and is licensed CC-BY-SA-4.0,
+not Apache-2.0.

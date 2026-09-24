@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use Gyra, please cite it as below."
+title: "Gyra: a fast decision model for coding agents"
+authors:
+  - family-names: R
+    given-names: Gowtham
+date-released: 2026-09-24
+license: Apache-2.0
+repository-code: "https://github.com/Gowtham-R-2002/gyra"
+url: "https://huggingface.co/RomanRG008/gyra"
+references:
+  - type: software
+    title: "Laya"
+    authors:
+      - name: "Convai Innovations"
+    url: "https://github.com/NandhaKishorM/laya"
