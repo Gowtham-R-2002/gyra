@@ -30,6 +30,12 @@ sandbox, real exit codes from public OpenHands agent logs, and labelled benchmar
 - **8-bit file** (480 MB) within 1.2 points of full precision on every test we checked.
 - **Everything is reproducible**: test sets, sandbox builder, scoring code in [`eval/`](eval/).
 
+## Watch Gyra in 20 seconds
+
+[![Watch the Gyra teaser: an agent checks a destructive command before running it](assets/gyra-teaser-poster.png)](assets/gyra-teaser-16x9.mp4)
+
+[Play the 21-second video](assets/gyra-teaser-16x9.mp4). The terminal sequence illustrates how a harness can use Gyra to flag a destructive command and ask for confirmation; it is a scripted demonstration, not a recording of a live agent run.
+
 ## v0.2
 
 - Destructive-command detection rewritten (intent-based) and generalized
