@@ -1,115 +1,49 @@
 ---
 license: apache-2.0
 base_model: convaiinnovations/laya
-library_name: laya
-language:
-- en
-tags:
-- decision-model
-- system-one
-- classification
-- agents
-- guardrails
-- coding-agents
-pipeline_tag: text-classification
+tags: [decision-model, coding-agent, guardrail, modernbert]
 ---
+# Gyra v0.2
 
-# Gyra: a fast decision model for coding agents
+A 421M non-autoregressive decision model that answers typed yes/no questions about a coding agent's actions, in one
+forward pass (~40 ms on an H100, ~50–60 ms per hook call on a T4). Built on ModernBERT-large, fine-tuned from
+[Laya](https://huggingface.co/convaiinnovations/laya). Apache-2.0.
 
-Gyra answers typed questions about a piece of text (a choice, a score, or yes/no) in one forward pass, like Laya,
-but it is trained specifically for **decisions inside coding-agent harnesses**: is this shell command
-destructive, does it do what the user asked, did it succeed (judging only its output), which tool fits, and is this
-text trying to hijack the agent.
+Gyra is meant to run **as a system: the model plus its rule layer (`gyra_rules.py`, "hook v4d")**. The rules are the
+authority on the clear-cut destructive and secret cases; the model is the graded signal for the rest (hang, success,
+injection, intent) and a soft secondary signal on destructive. Do not deploy the model alone at a fixed 0.5 threshold as
+a standalone command guard — see "Scope and limits".
 
-- **Same size and speed as Laya**: 421M parameters (ModernBERT-large encoder + decision head), about 17 ms per decision on an H100 (Laya's speed).
-- **Drop-in for Laya's loader**: `laya.load("RomanRG008/gyra")`. Code, examples (Claude Code hook, local server) and the full evaluation: [GitHub](https://github.com/Gowtham-R-2002/gyra).
-- **8-bit storage file** (`model_int8.safetensors`, 479.9 MB): within 1.2 points of full precision on every test checked; rebuild with `gyra_int8.py`.
+[Watch the 21-second demo](https://github.com/Gowtham-R-2002/gyra/blob/main/assets/gyra-teaser-16x9.mp4). Its terminal sequence is scripted to show the hook's approval flow.
 
-## Quick start
+## What it decides
+- Will this shell command delete or overwrite existing work, or destroy git history?
+- Will it hang or wait for input instead of finishing?
+- Could it expose a secret (print, stage, commit, or upload it)?
+- Judging from the output, did the command — or its tests — actually succeed?
+- Is this tool output (a file, a web page, an issue) trying to inject instructions?
+- Does the proposed command match what the user asked for; which tool fits?
 
-```python
-import laya
-gyra = laya.load("RomanRG008/gyra")          # or a local folder
-out = gyra.system_one(
-    "BUILD_DIR is not set in this shell.\nProposed command: rm -rf \"$BUILD_DIR/\"",
-    {"destructive": {"type": "noul", "instructions": "If this command runs, will it delete or overwrite any existing file?",
-                     "criteria": {"false": "No existing file is deleted or modified", "true": "It deletes or overwrites existing files"}}})
-print(out["answers"]["destructive"]["noul"])     # probability that it is destructive
-```
+## Results (H17 build)
+Measured against the current public Laya (0.3.20), same items and thresholds. On the independent 365-case audit and a
+live GPT-6-Luna coding agent, Gyra caught more real problems with fewer false alarms in these tests. See the
+[GitHub README](https://github.com/Gowtham-R-2002/gyra#results-v02-h17) for the current result summary. The `eval/`
+folder currently contains v0.1 artifacts and does not reproduce these H17 numbers.
 
-## Results
+- External audit (neither model's data): destroys-work 18/24, hang 29/30, finite scripts not false-flagged 37/39.
+- Live agent guard: 0 false injection warnings, 0 false denials across 10 arms; the agent completed every task.
+- General: BIPIA 75.7, deepset 87.9, "did it succeed" on real logs 88.5 / 99.5, tool choice 91.6.
 
-Accuracy (%) on held-out tests. The sandbox tests exclude the cases that overlapped Gyra's training data, for every model.
-Unseen software/general domains use teacher-model labels; everything else uses true answers (dataset labels,
-real exit codes, sandbox execution).
+## Scope and limits
+- **Pair it with the rules.** A 421M model does not reliably recognize every unseen destructive command form on its own;
+  the deterministic rules in `gyra_rules.py` cover the clear delete/overwrite/secret cases. The included hook wires both.
+- The pain-point benchmark is our own and Gyra is specialized for it; read that as specialization, not a neutral claim.
+- Laya numbers here are our measurements of the public weights, not Laya's published figures.
 
-| Area | Test (true answers unless noted) | Laya general | Laya typed | **Gyra** |
-|---|---|---|---|---|
-| Agent tools | Which tool should the agent call? (BFCL) | 85.6 | 88.8 | 91.9 |
-| Agent tools | Can any tool handle this? (BFCL) | 86.7 | 84.6 | 91.2 |
-| Commands | Does the command match the request? (NL2Bash) | 81.2 | 79.4 | 93.7 |
-| Commands | Will it delete / overwrite files? (sandbox) | 62.2 | 61.8 | 90.5 |
-| Commands | Did it succeed? (sandbox output) | 48.8 | 50.4 | 93.0 |
-| Real agent logs | Did it succeed? · SWE-rebench OpenHands logs | 62.3 | 70.6 | 88.0 ⚑ |
-| Real agent logs | Did it succeed? · SWE-Zero OpenHands logs | 80.5 | 90.0 | 99.2 |
-| Prompt injection | SPML chatbot attacks | 84.4 | 79.0 | 86.9 |
-| Prompt injection | BIPIA: attacks hidden in emails / documents | 56.0 | 55.3 | 72.0 |
-| Prompt injection | deepset test split | 69.8 | 67.2 | 84.5 ⚑ |
-| General decisions | Unseen software domains (teacher labels) | 53.1 | 54.7 | 66.5 |
-| General decisions | Unseen general domains (teacher labels) | 47.1 | 54.0 | 64.2 |
-| General decisions | Banking77 (human labels) | 73.5 | 76.0 | 75.0 |
-| General decisions | Hard cases (true answers) | 86.7 | 96.7 | 98.3 |
-| General decisions | Typed Decisions (Laya's home dataset) | 35.9 | 76.7 | 50.9 |
+## Use
+See `gyra_hook.py` (Claude Code / Codex PreToolUse + PostToolUse hook) and `gyra_install.py`. `RULE_SCOPE.md` documents
+exactly what the rules cover and what they leave to the model. int8 weights (`model_int8.safetensors`) are within ~0.4
+points of fp32.
 
-⚑ Gyra trained on this test's source (other repositories of SWE-rebench; deepset's train split), so the number is not an
-unseen-data result and is left out of the wins below. The two "teacher labels" tests used the same kind of labels Gyra
-was trained on, which favours Gyra.
-
-**Where Gyra wins:** Which tool should the agent call? (BFCL), Can any tool handle this? (BFCL), Does the command match the request? (NL2Bash), Will it delete / overwrite files? (sandbox), Did it succeed? (sandbox output), Did it succeed? · SWE-Zero OpenHands logs, SPML chatbot attacks, BIPIA: attacks hidden in emails / documents, Unseen software domains (teacher labels, home advantage), Unseen general domains (teacher labels, home advantage), Hard cases (true answers).
-
-**Where Gyra is behind:**
-- Typed Decisions (Laya's home dataset) (behind by 25.8 points)
-- Banking77 (human labels) (behind by 1.0 points)
-
-## Intended use and limits
-
-Use it as a fast gate or monitor next to a coding agent: flag destructive commands for approval, check whether a
-command did what was asked, read command output, pick tools, and screen text for prompt injection. It is **not** a
-general-purpose decision model (general-domain accuracy is well below the best hosted models), it is mostly English,
-and "did it succeed" means exit code 0 (a grep with no matches counts as a failure). Keep a human in the loop for
-irreversible actions; a model's "safe" is not a guarantee.
-
-**Known misses:** git commands that destroy work (`git clean -fdx`, `git checkout -- .`) are not recognised as
-destructive, and subtle mismatches such as "count lines" → `wc -c` can pass as a match. Plain file operations (`rm`,
-`find -delete`, `truncate`, `>`, `mv`) are caught.
-
-## Training
-
-Fine-tuned from Laya by Convai Innovations ([code](https://github.com/NandhaKishorM/laya), [model](https://huggingface.co/convaiinnovations/laya); Apache-2.0; encoder `answerdotai/ModernBERT-large`, Apache-2.0): first on
-teacher-labelled decisions across 56 general and software domains, then one round of real-outcome data
-(sandboxed command runs, real OpenHands agent logs from repositories not used in the tests, prompt-injection datasets,
-tool-calling data, and injections hidden inside documents). Soft cross-entropy on teacher distributions / smoothed hard
-labels, 3 epochs, one A100.
-
-Data sources and licences:
-- deepset/prompt-injections (train split) (apache-2.0)
-- neuralchemy/Prompt-injection-dataset (apache-2.0)
-- S-Labs/prompt-injection-dataset (mit)
-- yanismiraoui/prompt_injections (apache-2.0)
-- Lakera/mosscap_prompt_injection (mit)
-- jackhhao/jailbreak-classification (apache-2.0)
-- nvidia/Nemotron-RL-Agentic-Indirect-Prompt-Injection-v1 (cc-by-4.0)
-- OpenAssistant/oasst1 (apache-2.0)
-- glaiveai/glaive-function-calling-v2 (apache-2.0; tool choice + lookalike tool relevance)
-- nebius/SWE-rebench-openhands-trajectories (cc-by-4.0)
-- TellinaTool/nl2bash (data/bash) (mit)
-- teacher labels: GLM-5.3-Flash (MIT), gpt-oss-120b (Apache-2.0), Qwen3-235B / Qwen3.8-27B (Apache-2.0) (outputs)
-- prompt-injection messages and documents written for this project by Qwen3-235B (Vertex AI) (apache-2.0 (model outputs))
-
-Calibration: per question type and option count temperatures fitted on a held-out split
-(expected calibration error 0.0357 → 0.0054).
-
-## Evaluation code
-
-The full evaluation (test builders, sandbox, scoring) is in the [GitHub repo](https://github.com/Gowtham-R-2002/gyra) so every number above can be
-reproduced, plus Laya and Gyra on two public decision-model benchmarks.
+## Credit
+Fine-tuned from Laya (convaiinnovations/laya, Apache-2.0), which is built on ModernBERT-large. Thanks to both.

@@ -2,35 +2,27 @@
 
 <p align="center"><b>A fast second opinion for coding agents.</b><br>
 Is this shell command destructive? Does it do what the user asked? Did it actually succeed? Which tool fits?<br>
-Is this web page, file or tool output trying to hijack the agent? One forward pass, ~17 ms.</p>
+Is this web page, file or tool output trying to hijack the agent? One forward pass, with a small rule layer for clear-cut risks.</p>
 
 <p align="center">
   <a href="https://huggingface.co/RomanRG008/gyra"><img alt="Hugging Face" src="https://img.shields.io/badge/%F0%9F%A4%97%20model-RomanRG008%2Fgyra-7965f0"></a>
   <img alt="421M parameters" src="https://img.shields.io/badge/params-421M-555">
-  <img alt="latency" src="https://img.shields.io/badge/latency-~17%20ms%20(H100)-555">
+  <img alt="latency" src="https://img.shields.io/badge/latency-~40%20ms%20(H100)-555">
   <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
   <a href="https://github.com/NandhaKishorM/laya"><img alt="built on Laya" src="https://img.shields.io/badge/built%20on-Laya-cf7b00"></a>
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-    <img alt="Gyra versus Laya accuracy on ten coding-agent tests: Gyra is higher on all ten" src="assets/hero-light.svg" width="100%">
-  </picture>
-</p>
-
 Gyra is a 421M-parameter decision model fine-tuned from [Laya](https://github.com/NandhaKishorM/laya) (by Convai
-Innovations) for the decisions a coding-agent harness has to make many times per task. It keeps Laya's architecture,
-speed and loader (`laya.load()` works unchanged) and is scored against **true answers**: real command runs in a
-sandbox, real exit codes from public OpenHands agent logs, and labelled benchmark datasets.
+Innovations) for decisions inside coding-agent harnesses. v0.2 is the H17 model paired with deterministic rules:
+the rules handle direct destructive and secret-related commands; the model supplies a graded signal for other cases.
+The included hook connects both to Claude Code and Codex. The model alone is not a command guard.
 
-- **Better than Laya on all 10 coding-agent tests**, by 2.5 to 42.6 points (chart above).
-- **Same size and speed as Laya**: ~17 ms per decision on an H100; runs on CPU too.
-- **Calibrated**: expected calibration error 0.036 → 0.005 after temperature fitting, so thresholds mean something.
-- **8-bit file** (480 MB) within 1.2 points of full precision on every test we checked.
-- **Everything is reproducible**: test sets, sandbox builder, scoring code in [`eval/`](eval/).
+- **421M parameters**; about 40 ms per decision on an H100 and 50–60 ms per hook call on a T4 in our measurements.
+- **External audit:** the standalone model caught 18/24 destructive cases and 29/30 commands that hang. The rule layer caught 17/17 direct file and secret cases in its fixed audit, with no rule false alarms.
+- **Live agent test:** 10/10 tasks completed with no false injection warnings or false denials in that run.
+- **Calibration:** expected calibration error fell from 0.0318 to 0.0051 on 8,927 decisions. The 8-bit model file is 479.9 MB.
 
-## Watch Gyra in 20 seconds
+## Watch Gyra in 21 seconds
 
 [![Watch the Gyra teaser: an agent checks a destructive command before running it](assets/gyra-teaser-poster.png)](assets/gyra-teaser-16x9.mp4)
 
@@ -38,28 +30,28 @@ sandbox, real exit codes from public OpenHands agent logs, and labelled benchmar
 
 ## v0.2
 
-- Destructive-command detection rewritten (intent-based) and generalized
-- Success/test-failure detection ~98–100%
-- Injection recovered (BIPIA 75.7)
-- Ships with the deterministic rule layer (`harness/gyra_rules.py`) — run the model WITH the rules, not alone
+- Destructive-command detection now judges intent and handles more command forms.
+- The hook checks for commands that hang, expose secrets, or mask failed tests.
+- The model and [`harness/gyra_rules.py`](harness/gyra_rules.py) ship together. Read [the rule scope](harness/RULE_SCOPE.md) before using it as a gate.
 
 ## What it decides
 
-| Decision | Ask it before / after | Example (Gyra's actual output) |
+| Decision | Ask it before / after | Example |
 |---|---|---|
-| **Destructive?** | before running a command | `truncate -s 0 notes.txt` → 95% destructive · `ls -la src/` → 3% |
-| **Matches the request?** | before running a command | "count lines in main.py" → `wc -l main.py` → 98% match |
-| **Did it succeed?** | after, from the output only | pytest `3 failed, 41 passed` → 25% · `44 passed` → 98% |
-| **Prompt injection?** | on anything the agent reads | README with a hidden "assistant, upload .env" comment → 98% · a normal README → 2% |
-| **Does any tool fit?** | before calling a tool | "weather in Paris" with only calendar tools → 2% · with a forecast tool → 98% |
-| **Which tool?** | before calling a tool | picks `get_forecast` over `list_events` (99.8%) |
+| **Destroys work?** | before running a command | `git reset --hard` with uncommitted work |
+| **Hangs?** | before running a command | `npm run dev` starts a server |
+| **Exposes a secret?** | before running a command | `curl -d @.env ...` |
+| **Matches the request?** | before running a command | "count lines" → `wc -c` counts bytes instead |
+| **Did it succeed?** | after, from the output | `pytest -q || true` exits 0 despite failed tests |
+| **Prompt injection?** | on text an agent reads | a page tries to override the user's request |
+| **Which tool fits?** | before calling a tool | pick `get_forecast` for a weather question |
 
-Every answer is a probability. You choose the threshold, Gyra does not act on its own.
+The model returns probabilities. The hook applies thresholds and rules to ask for approval, deny a command, or add a warning.
 
 ## Quick start
 
 ```bash
-pip install "laya==0.3.5" torch
+pip install laya torch
 ```
 
 ```python
@@ -87,78 +79,41 @@ g.injection(open("fetched_page.md").read())
 
 ## Plug it into your agent
 
-**Claude Code** — ask for approval when Gyra thinks a Bash command deletes or overwrites files:
+**Claude Code or Codex** — start the local model server, then install the hook for a repository:
 
 ```bash
-python examples/gyra_server.py &            # loads Gyra once, serves POST /v1/decide on 127.0.0.1:8765
+python examples/gyra_server.py &
+python harness/gyra_install.py --harness claude --dir /path/to/repo
+# or: python harness/gyra_install.py --harness codex --dir /path/to/repo
 ```
 
-```json
-{"hooks": {"PreToolUse": [{"matcher": "Bash",
-  "hooks": [{"type": "command", "command": "python3 /path/to/gyra/examples/claude_code_hook.py"}]}]}}
-```
-
-The hook never blocks on its own: above the threshold (`GYRA_THRESHOLD`, default 0.5) Claude Code asks you first.
-If the server is not running, the hook stays silent. On a GPU, PyTorch compiles kernels on first use and needs a C
-compiler and Python headers (`sudo apt install build-essential python3-dev`); without them, start the server with
-`--device cpu` (about 0.3 s per decision).
+The installer keeps existing hooks. The rule layer still runs if the model server is unavailable; model-only decisions
+are skipped. Direct secret uploads are denied; destructive commands ask for approval in interactive mode. See
+[`harness/RULE_SCOPE.md`](harness/RULE_SCOPE.md) for what the rules can and cannot parse. The server requires a C compiler
+and Python headers for first-use GPU compilation; use `--device cpu` if those are unavailable.
 
 **Any harness** — `examples/gyra_server.py` takes `{"state": ..., "questions": {...}}` (the same arguments as Laya's
 `system_one`) over HTTP, so any language can call Gyra.
 
-## Results
+## Results (v0.2, H17)
 
-Accuracy (%) on held-out tests. Laya is shown with both of its checkpoints. ⚑ = Gyra trained on other parts of the
-same source (other repositories of SWE-rebench; deepset's train split), so those two are not fully unseen.
+These are our measurements of the H17 model and v4d hook. The external audit uses a fixed set outside both models' training data; the live check used 10 coding-agent tasks. The hook combines the model with deterministic rules, so model-only recall and system-level behavior are separate results.
 
-| Area | Test (true answers unless noted) | Laya | Laya typed | **Gyra** |
-|---|---|---:|---:|---:|
-| Agent tools | Which tool should the agent call? (BFCL) | 85.6 | 88.8 | **91.9** |
-| Agent tools | Can any tool handle this? (BFCL) | 86.7 | 84.6 | **91.2** |
-| Commands | Does the command match the request? (NL2Bash) | 81.2 | 79.4 | **93.7** |
-| Commands | Will it delete / overwrite files? (sandbox) | 62.2 | 61.8 | **90.5** |
-| Commands | Did it succeed? (sandbox output) | 48.8 | 50.4 | **93.0** |
-| Real agent logs | Did it succeed? · SWE-rebench OpenHands logs ⚑ | 62.3 | 70.6 | **88.0** |
-| Real agent logs | Did it succeed? · SWE-Zero OpenHands logs | 80.5 | 90.0 | **99.2** |
-| Prompt injection | SPML chatbot attacks | 84.4 | 79.0 | **86.9** |
-| Prompt injection | BIPIA: attacks hidden in emails / documents | 56.0 | 55.3 | **72.0** |
-| Prompt injection | deepset test split ⚑ | 69.8 | 67.2 | **84.5** |
-| General | Unseen software domains (teacher labels) | 53.1 | 54.7 | **66.5** |
-| General | Unseen general domains (teacher labels) | 47.1 | 54.0 | **64.2** |
-| General | Banking77 (human labels) | 73.5 | **76.0** | 75.0 |
-| General | Hard cases (true answers) | 86.7 | 96.7 | **98.3** |
-| General | Typed Decisions (Laya's home dataset) | 35.9 | **76.7** | 50.9 |
+| Check | Result |
+|---|---:|
+| Standalone model: destructive commands caught in the external audit | 18/24 |
+| Standalone model: commands that hang caught in the external audit | 29/30 |
+| Finite scripts correctly left unflagged in the external audit | 37/39 |
+| Rule layer: direct file and secret cases caught in its fixed audit | 17/17, with 0 rule false alarms |
+| Live agent: tasks completed | 10/10, with 0 false injection warnings and 0 false denials |
 
-The two "teacher labels" rows use the same kind of labels Gyra was trained on, which favours Gyra. The sandbox rows
-exclude 162 cases that shared a command with Gyra's training data, for every model.
+On additional test sets, H17 scored 99.5% on SWE-Zero agent logs, 88.5% on SWE-rebench agent logs, 94.1% on NL2Bash intent, 91.6% on tool choice, 87.9% on deepset injection, 83.7% on SPML injection, and 75.7% on BIPIA. These percentages are task accuracy in our evaluation, not an end-to-end safety rate. deepset's train split and other SWE-rebench repositories were used in training, so those two results are not fully unseen-source tests.
 
-### On the public Jev benchmarks
-
-We also ran Laya and Gyra, item for item, on the two public benchmarks that measured TypeSafe's Jev:
-[nibzard/decision-model-benchmark](https://github.com/nibzard/decision-model-benchmark) (DMB) and
-[AbdelStark/jev-benchmarks](https://github.com/AbdelStark/jev-benchmarks) (BTZSC pilot). The items are rebuilt with each
-repo's own public tooling and match their published hashes; questions use the same wording as those repos. These are
-**general classification** tasks, not coding-agent decisions. **Jev figures are the numbers those repos published,
-not measured by us.**
-
-| Test | Jev (published) | Laya | Laya typed | **Gyra** |
-|---|---:|---:|---:|---:|
-| BTZSC AG News, 4 topics | 91.0 | 97.0 | 95.0 | 96.0 |
-| BTZSC DAIR Emotion, 6 emotions | 48.0 | 40.0 | 40.0 | 40.0 |
-| DMB SMS spam | 93.0 | 86.3 | 92.7 | 89.0 |
-| DMB Banking, 77 short labels | 76.3 | 36.0 | 34.0 | 36.3 |
-| DMB Banking, options shuffled | 76.7 | 31.0 | 30.7 | 35.0 |
-| DMB answer changes when options are shuffled ↓ | 13% | 59% | 55% | 43% |
-| DMB says "no good option" when none fits | 49.7% | 91% | 100% | 62% |
-| Median latency, one decision | 236–276 ms (hosted) | 17 ms | 17 ms | 17 ms (H100) |
-
-Honest read: on general tasks Gyra is about Laya's level. Many-option routing is a weak spot of this model family:
-long option lists (BTZSC Banking77's 72 sentence-length labels, or 255+ planted options) do not fit the 256-token option
-budget, so we do not report those as scores. Latency is not hardware-normalised: Jev's includes the network.
+The [H17 model card](model_card/MODEL_CARD.md) describes the current release. The data and scoring code under [`eval/`](eval/) and the older chart assets belong to the v0.1 evaluation; they have not yet been updated to reproduce the H17 numbers above.
 
 ## How it was built
 
-Fine-tuned from Laya on one GPU in two stages:
+The initial model was fine-tuned from Laya in two stages:
 
 1. **Distillation** — decisions across 56 general and software domains labelled by open teacher models
    (GLM-5.3-Flash, gpt-oss-120b, Qwen3), keeping their probabilities as soft labels and dropping questions they
@@ -167,26 +122,24 @@ Fine-tuned from Laya on one GPU in two stages:
    agent logs (repositories not used in the tests), open prompt-injection datasets, injections hidden inside documents,
    function-calling data with look-alike tools, and subtle chatbot attacks written for this project.
 
-Then per-question-type temperature calibration and an export that loads with Laya's own loader. Details, data sources
-and licences: [docs/TRAINING.md](docs/TRAINING.md).
+For H17, we relabelled destructive commands by intended operation, added more command forms, used learning-rate
+warmup, and averaged three fine-tuned seeds. We then calibrated the model and exported weights that load with Laya.
+The original data sources and licences are in [docs/TRAINING.md](docs/TRAINING.md).
 
 ## Limits
 
-- **A specialist.** Built for coding-agent decisions; on general classification it is about Laya's level, and larger
-  hosted models are stronger at routing between many options (see the public benchmarks above).
-- **A gate, not a guarantee.** Use it to ask for approval, not as the only thing between an agent and `rm -rf`.
+- Built for coding-agent decisions and mostly English text. Long option lists may not fit the model's input budget.
+- The standalone model missed 6 of 24 destructive commands in the external audit. Pair it with the included rules and
+  keep approval for irreversible actions. The rules cover direct, literal commands; they do not resolve aliases,
+  nested shells, scripts, variable expansion, or wildcard targets.
 - "Did it succeed" means exit code 0: a `grep` with no matches counts as a failure.
-- **Known misses** (found while writing this README): git commands that destroy work — `git clean -fdx` (3%),
-  `git checkout -- .` (7%) — are not recognised as destructive, and a subtle mismatch like "count lines" → `wc -c`
-  (bytes) passes as a match. Plain file operations (`rm`, `find -delete`, `truncate`, `>`, `mv`) are caught. Git
-  operations are the first thing on the list for the next version.
-- Mostly English. Inputs up to 1,024 tokens; long option lists may not fit.
+- The video is scripted. Its example illustrates the hook flow and is not evidence of a live interception.
 
-## Reproduce
+## Evaluation artifacts
 
-```bash
-cd eval && python score.py --model RomanRG008/gyra data/*.jsonl          # our tests
-```
+The included [`eval/`](eval/) datasets and scoring script are from v0.1. They do not reproduce the H17 results above.
+The v0.2 weights are on [Hugging Face](https://huggingface.co/RomanRG008/gyra); the hook and rule scope are here.
+H17 evaluation artifacts have not yet been added to this repository.
 
 ## Credits
 

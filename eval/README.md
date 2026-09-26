@@ -1,5 +1,7 @@
 # gyra-eval
 
+These datasets and the scoring script are from the v0.1 evaluation. They do not reproduce the H17/v0.2 results in the main README.
+
 Reproducible tests for decision models used inside coding-agent harnesses (any Laya-format model). Every test has a true answer: a dataset label, a real exit code from a public agent log, or the
 recorded effect of actually running the command in a throwaway sandbox. Two sets use teacher-model labels and say so.
 

@@ -9,6 +9,8 @@ authority on the clear-cut destructive and secret cases; the model is the graded
 injection, intent) and a soft secondary signal on destructive. Do not deploy the model alone at a fixed 0.5 threshold as
 a standalone command guard — see "Scope and limits".
 
+[Watch the 21-second demo](https://github.com/Gowtham-R-2002/gyra/blob/main/assets/gyra-teaser-16x9.mp4). Its terminal sequence is scripted to show the hook's approval flow.
+
 ## What it decides
 - Will this shell command delete or overwrite existing work, or destroy git history?
 - Will it hang or wait for input instead of finishing?
@@ -19,8 +21,9 @@ a standalone command guard — see "Scope and limits".
 
 ## Results (H17 build)
 Measured against the current public Laya (0.3.20), same items and thresholds. On the independent 365-case audit and a
-live GPT-6-Luna coding agent, Gyra catches more real problems at far lower false-alarm rates. Full head-to-head and the
-pain-point suites are in the repo's benchmark page and `eval/`.
+live GPT-6-Luna coding agent, Gyra caught more real problems with fewer false alarms in these tests. The
+[GitHub README](https://github.com/Gowtham-R-2002/gyra#results-v02-h17) summarizes the current results. The `eval/`
+folder currently contains v0.1 artifacts and does not reproduce these H17 numbers.
 
 - External audit (neither model's data): destroys-work 18/24, hang 29/30, finite scripts not false-flagged 37/39.
 - Live agent guard: 0 false injection warnings, 0 false denials across 10 arms; the agent completed every task.
