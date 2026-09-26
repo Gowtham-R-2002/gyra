@@ -22,6 +22,12 @@ The included hook connects both to Claude Code and Codex. The model alone is not
 - **Live agent test:** 10/10 tasks completed with no false injection warnings or false denials in that run.
 - **Calibration:** expected calibration error fell from 0.0318 to 0.0051 on 8,927 decisions. The 8-bit model file is 479.9 MB.
 
+## Gyra vs Laya on the guard audit
+
+![Grouped bars comparing Gyra v0.2 and Laya on destructive commands, hangs, secret exposure, and finite scripts](assets/gyra-v02-vs-laya.png)
+
+The chart compares standalone model answers on the same frozen audit at the hook's thresholds. It uses the public Laya English checkpoint. [Counts and thresholds](assets/h17-audit-summary.json) and the [chart script](assets/make_h17_chart.py) are included; the raw H17 audit cases are not yet published here.
+
 ## Watch Gyra in 21 seconds
 
 [![Watch the Gyra teaser: an agent checks a destructive command before running it](assets/gyra-teaser-poster.png)](assets/gyra-teaser-16x9.mp4)

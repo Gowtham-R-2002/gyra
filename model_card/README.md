@@ -30,6 +30,10 @@ live GPT-6-Luna coding agent, Gyra caught more real problems with fewer false al
 [GitHub README](https://github.com/Gowtham-R-2002/gyra#results-v02-h17) for the current result summary. The `eval/`
 folder currently contains v0.1 artifacts and does not reproduce these H17 numbers.
 
+![Gyra v0.2 versus Laya on four coding-agent guard checks](assets/gyra-v02-vs-laya.png)
+
+The chart shows standalone model results at the hook's thresholds on subsets of the frozen audit. [Counts, thresholds, and plotting code](https://github.com/Gowtham-R-2002/gyra/tree/main/assets) are on GitHub. The rule-layer result below comes from a separate audit.
+
 - External audit (neither model's data): destroys-work 18/24, hang 29/30, finite scripts not false-flagged 37/39.
 - Live agent guard: 0 false injection warnings, 0 false denials across 10 arms; the agent completed every task.
 - General: BIPIA 75.7, deepset 87.9, "did it succeed" on real logs 88.5 / 99.5, tool choice 91.6.
