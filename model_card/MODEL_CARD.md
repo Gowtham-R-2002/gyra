@@ -29,6 +29,8 @@ folder currently contains v0.1 artifacts and does not reproduce these H17 number
 
 The chart shows standalone model results at the hook's thresholds on subsets of the frozen audit. [Counts, thresholds, and plotting code](https://github.com/Gowtham-R-2002/gyra/tree/main/assets) are included. The rule-layer result below comes from a separate audit.
 
+[Watch the 26-second Gyra vs Laya video](https://github.com/Gowtham-R-2002/gyra/blob/main/assets/gyra-vs-laya-16x9.mp4). The tool-call examples are scripted; the audit bars use the measured counts above.
+
 - External audit (neither model's data): destroys-work 18/24, hang 29/30, finite scripts not false-flagged 37/39.
 - Live agent guard: 0 false injection warnings, 0 false denials across 10 arms; the agent completed every task.
 - General: BIPIA 75.7, deepset 87.9, "did it succeed" on real logs 88.5 / 99.5, tool choice 91.6.
