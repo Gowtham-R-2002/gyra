@@ -12,6 +12,8 @@ Is this web page, file or tool output trying to hijack the agent? One forward pa
   <a href="https://github.com/NandhaKishorM/laya"><img alt="built on Laya" src="https://img.shields.io/badge/built%20on-Laya-cf7b00"></a>
 </p>
 
+[Website](https://loopwit.com/gyra/) · [Model on Hugging Face](https://huggingface.co/RomanRG008/gyra)
+
 Gyra is a 421M-parameter decision model fine-tuned from [Laya](https://github.com/NandhaKishorM/laya) (by Convai
 Innovations) for decisions inside coding-agent harnesses. v0.2 is the H17 model paired with deterministic rules:
 the rules handle direct destructive and secret-related commands; the model supplies a graded signal for other cases.
