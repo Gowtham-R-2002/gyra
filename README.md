@@ -30,6 +30,13 @@ sandbox, real exit codes from public OpenHands agent logs, and labelled benchmar
 - **8-bit file** (480 MB) within 1.2 points of full precision on every test we checked.
 - **Everything is reproducible**: test sets, sandbox builder, scoring code in [`eval/`](eval/).
 
+## v0.2
+
+- Destructive-command detection rewritten (intent-based) and generalized
+- Success/test-failure detection ~98–100%
+- Injection recovered (BIPIA 75.7)
+- Ships with the deterministic rule layer (`harness/gyra_rules.py`) — run the model WITH the rules, not alone
+
 ## What it decides
 
 | Decision | Ask it before / after | Example (Gyra's actual output) |
